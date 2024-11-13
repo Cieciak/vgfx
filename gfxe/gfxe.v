@@ -6,7 +6,7 @@ import gx
 // Objects without internal structure
 pub interface Simple{
 	cost() int
-	draw(mut GFXEngine)
+	draw(mut GFXEngine, LocalContex)
 }
 
 // These can contain references to other objects
@@ -18,6 +18,7 @@ pub interface Complex{
 struct Drawable{
 	obj Simple
 	cst int
+	ctx LocalContex
 }
 
 // Getting around language limitation
@@ -39,9 +40,11 @@ pub fn new_gfxe() &GFXEngine{
 		bg_color:     gx.black
 		width:        600
 		height:       600
-		frame_fn:     frame
 		sample_count: 2
 		user_data: ge
+
+		frame_fn:     frame
+		move_fn:      move
 	)
 	ge.sc = &Scene{}
 
@@ -63,11 +66,21 @@ fn frame(mut ge GFXEngine){
 	objects := ge.sc.flatten()
 	println("List ${objects}")
 	for drawable in objects{
-		drawable.obj.draw(mut ge)
+		drawable.obj.draw(mut ge, drawable.ctx)
 	}
 
 	// Show FPS
 	ge.gg.begin()
 	ge.gg.show_fps()
 	ge.gg.end(how: .passthru)
+}
+
+fn move(x f32, y f32, mut ge GFXEngine){
+	if ge.gg.mouse_buttons.has(.right) || ge.gg.mouse_buttons.has(.middle){
+		difference := Vector2{
+			x: ge.gg.mouse_dx,
+			y: ge.gg.mouse_dy,
+		}
+		ge.sc.ctx.offset += difference
+	}
 }

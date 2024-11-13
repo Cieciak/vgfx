@@ -4,6 +4,8 @@ module gfxe
 pub struct Layer{
 	mut:
 		objects []LayerObject
+	pub mut:
+		ctx LocalContex
 }
 
 pub fn (mut lr Layer) add_simple(obj Simple){

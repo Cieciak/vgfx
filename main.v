@@ -29,20 +29,19 @@ struct Tile{
 
 fn (tile Tile) cost() int{return 1}
 
-fn (tile Tile) draw(mut ge gfxe.GFXEngine){
+fn (tile Tile) draw(mut ge gfxe.GFXEngine, ctx gfxe.LocalContex){
     gg     := ge.get_ctx()
-    radius := .05 * (tile.size.x + tile.size.y)
+    radius := .10 * (tile.size.x + tile.size.y)
 
     gg.draw_rounded_rect_filled(
-        tile.position.x,
-        tile.position.y,
-        tile.size.x,
-        tile.size.y,
-        radius,
+        ctx.scale * tile.position.x + ctx.offset.x,
+        ctx.scale * tile.position.y + ctx.offset.y,
+        ctx.scale * tile.size.x,
+        ctx.scale * tile.size.y,
+        ctx.scale * radius,
         tile.color,
     )
 }
-
 struct Grid{
     mut:
         position Vector2
@@ -86,17 +85,18 @@ fn main() {
     mut scene := &gfxe.Scene{}
 
     mut l0 := gfxe.Layer{}
-    l0.add_simple(
-        Tile{
-            position: Vector2{x: 300, y: 300},
-            size:     Vector2{x: 50,  y:  50},
-            color:    rand_rgb(),
-        }
-    )
+    l0.ctx = gfxe.LocalContex{
+        offset: gfxe.Vector2{x:0, y: 0}
+        scale: 2.0
+    }
     l0.add_complex(
         new_grid(4, 4)
     )
 
+    scene.ctx = gfxe.LocalContex{
+        offset: gfxe.Vector2{x:0, y:0},
+        scale: 1.0
+    }
     scene.add_layer(l0)
 
     gfx_engine.set_scene(scene)

@@ -4,6 +4,8 @@ module gfxe
 pub struct Scene{
 	mut:
 		layers []Layer
+	pub mut:
+		ctx LocalContex
 }
 
 pub fn (sc Scene) flatten() []Drawable{
@@ -15,8 +17,9 @@ pub fn (sc Scene) flatten() []Drawable{
 				SimpleStruct{
 					println("Simple ${ob}")
 					candidates << Drawable{
-						obj: ob.s
-						cst: ob.s.cost()
+						obj: ob.s,
+						cst: ob.s.cost(),
+						ctx: sc.ctx.combine(lr.ctx),
 					}
 				}
 				ComplexStruct{
@@ -25,6 +28,7 @@ pub fn (sc Scene) flatten() []Drawable{
 						candidates << Drawable{
 							obj: c,
 							cst: c.cost(),
+							ctx: sc.ctx.combine(lr.ctx),
 						}
 					}
 				}
